@@ -103,7 +103,7 @@ This tool provides estimates only and is not a substitute for professional engin
 
 ## Acknowledgments
 
-- Crafted with inspiration from Elon Musk's focus on simplicity and Steve Jobs' obsession with elegant design.
+- Learn More at WindCalculations.com: WindCalculations.com provides site-specific wind load calculations, certifications, and engineering letters essential for permitting and installing building components like windows, doors, rooftop solar equipment, and roofing materials. It ensures full compliance with the latest Building Codes and ASCE 7-22 standards.
 - Based on ASCE 7-22 Minimum Design Loads for Buildings.
 
 If you find this useful, star the repo! ⭐

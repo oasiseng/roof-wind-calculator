@@ -276,12 +276,15 @@
 
   <script>
     // Compute Kz per ASCE 7-22 (exact formula)
+    // Kz per ASCE 7-22 Table 26.11-1 & Eq. 26.10-1
+    // Kz = 2.01 * (z/zg)^(2/alpha), z clamped to min 15 ft
     function computeKz(exposure, height) {
       let alpha, zg;
-      if (exposure === 'B') { alpha = 9.5; zg = 1200; }
-      else if (exposure === 'C') { alpha = 7.0; zg = 900; }
-      else if (exposure === 'D') { alpha = 5.0; zg = 700; }
-      return 2.01 * Math.pow(height / zg, 2 / alpha);
+      if (exposure === 'B') { alpha = 7.0; zg = 1200; }
+      else if (exposure === 'C') { alpha = 9.5; zg = 900; }
+      else if (exposure === 'D') { alpha = 11.5; zg = 700; }
+      const z = Math.max(height, 15);
+      return 2.01 * Math.pow(z / zg, 2 / alpha);
     }
 
     // GCp data from ASCE 7-22 figures (for gable/hip/monoslope; pos constant, neg interpolated)

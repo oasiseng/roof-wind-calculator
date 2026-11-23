@@ -39,18 +39,13 @@ strength level Zone 1′ = −59.0, Zone 1 = −102.7, Zone 2 = −135.5, Zone 3
 
 ## How sure are the numbers
 
-`test/cc-wind.test.js` pins 97 values: K<sub>z</sub> against Table 26.10-1, the wall and roof baselines, and GC<sub>p</sub> at
-several areas for each figure. The GC<sub>p</sub> curves were checked against the equations in the ASCE 7-22 commentary
-(Tables C30.3-1 to C30.3-8) where those could be found. Four curves could not be confirmed from a second source and are marked
-`'F'` in `src/cc-wind.js`; the page shows a notice whenever one of them is used:
+`test/cc-wind.test.js` pins 163 values: K<sub>z</sub> against Table 26.10-1, the wall and roof baselines, and GC<sub>p</sub> for every figure.
 
-- Fig. 30.3-2D (gable 27° to 45°), Zone 3, beyond 10 sq ft
-- Fig. 30.3-2E (hip 7° to 20°), Zones 2 and 3
-- Fig. 30.3-2F (hip 20° to 27°), Zone 1
+Every GC<sub>p</sub> line was checked three ways: against the printed ASCE 7-22 figures (Figs. 30.3-1 and 30.3-2A to 2G), against the equations in the commentary (Tables C30.3-1 to C30.3-8), and by back-calculating the 2024 IRC Table R301.2.1(1), which is computed from the same figures. The test file reproduces 55 printed IRC values to within 0.1 psf across every gable and hip figure.
 
-Their 10 sq ft values agree with published summaries; the slope of the line beyond 10 sq ft is the open part. The zone layouts
-for the gable and hip figures are drawn from our reading of the figures. If you have the standard open and find a difference,
-please open an issue.
+The zone layouts were checked against the plan views in the same figures: the low-slope layout set by h; the gable layout up to 27° (rake strips and a 2a ridge band in Zone 2, Zone 3 at the ridge ends); the gable layout above 27° (rake strips in Zone 2, a x a corners in Zone 3, ridge in Zone 1); and the single hip layout (Zone 3 along the eaves, Zone 2 a each side of the hips and ridge).
+
+One figure was not among the pages checked: Fig. 30.4-1, walls of buildings over 60 ft. Its values are the long-standing ones (+0.9 to +0.6, Zone 4 −0.9 to −0.7, Zone 5 −1.8 to −1.0, 20 to 500 sq ft).
 
 ## Files
 

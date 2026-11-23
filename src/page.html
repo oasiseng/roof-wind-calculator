@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ASCE 7-22 Roof Components &amp; Cladding Wind Pressure Calculator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      background-color: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    h1, h2, h3 { color: #1a1a1a; }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .instructions, .input-form, .results, .disclaimer, .warning, .scope {
+      margin-bottom: 25px;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .instructions { background-color: #e8f4fd; border: 1px solid #b3d9ff; }
+    .scope        { background-color: #eef7ee; border: 1px solid #b6dfb6; }
+    .warning      { background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; font-weight: 600; }
+    .input-form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 0.95em;
+      position: relative;
+    }
+    .help-icon { cursor: help; color: #007BFF; font-size: 0.85em; margin-left: 5px; }
+    .input-form input, .input-form select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1em;
+      transition: border-color 0.2s;
+    }
+    .input-form input:focus, .input-form select:focus { border-color: #3498db; outline: none; }
+    .input-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+      transition: background-color 0.2s, transform 0.1s;
+      margin-right: 8px;
+    }
+    button:hover { background-color: #2980b9; transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    button#resetBtn { background-color: #95a5a6; }
+    button#resetBtn:hover { background-color: #7f8c8d; }
+    .results {
+      display: none;
+      background-color: #eafaf1;
+      border: 1px solid #c3e6cb;
+    }
+    .results h2 { margin-top: 0; color: #155724; }
+    .results table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .results th, .results td {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .results th { background-color: #f8f9fa; font-weight: 600; }
+    .results td.zone-cell { text-align: left; font-weight: 600; }
+    .result-value { font-weight: 600; color: #155724; }
+    .zone-diagram { text-align: center; margin: 20px 0; }
+    .zone-diagram svg { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; background: #fff; }
+    .zone-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 20px;
+      margin-top: 12px;
+      font-size: 0.85em;
+    }
+    .zone-legend .item { display: flex; align-items: center; gap: 6px; }
+    .zone-legend .swatch { width: 14px; height: 14px; border: 1px solid #555; }
+    .disclaimer {
+      font-size: 0.85em;
+      color: #555;
+      text-align: center;
+      background-color: #f8f9fa;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .error { color: #c0392b; font-size: 0.9em; margin-top: -10px; margin-bottom: 10px; }
+    @media (max-width: 600px) {
+      .container { padding: 15px; margin: 10px; }
+      .input-group { gap: 15px; }
+    }
+  
+    .results td.num { text-align: right; }
+    .results .min { color: #8a6d3b; font-size: .85em; font-weight: 400; }
+    .params { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 4px 20px; margin: 0; }
+    .params p { margin: 2px 0; }
+    .zone-legend { justify-content: flex-start; flex-direction: column; gap: 6px; text-align: left; max-width: 520px; margin: 12px auto 0; }
+    .note { font-size: .88em; color: #555; }
+    .flag { background:#fff3cd; border:1px solid #ffeeba; color:#856404; padding:10px 14px; border-radius:6px; margin-top:14px; font-size:.92em; }
+    .seg { display:flex; gap:8px; } .seg input { flex:1; } .seg select { flex:0 0 110px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>ASCE 7-22 Roof Components &amp; Cladding Wind Pressure Calculator</h1>
+    <p style="text-align:center; font-style: italic; color: #666; margin-top: -10px;">
+      Gable and hip roofs, 0° to 45° · h ≤ 60 ft · Figs. 30.3-2A to 30.3-2G · v2.0
+    </p>
+
+    <div class="scope">
+      <strong>Scope:</strong> enclosed, partially open and partially enclosed buildings with mean roof height
+      <strong>h ≤ 60 ft</strong>, gable or hip roofs from flat to 45° (ASCE 7-22 Chapter 30, Part 1). Roofs at 7° or less use
+      Fig. 30.3-2A whatever their shape. <strong>Not covered:</strong> roof overhangs (Sec. 30.7), parapets, monoslope roofs
+      steeper than 3°, stepped, sawtooth or multispan roofs, open buildings, rooftop equipment, and tornado loads (Chapter 32).
+    </div>
+
+    <div class="instructions">
+      <h2>How to Use</h2>
+      <p>Enter the wind speed, the building, the roof and the effective wind area of the component you are sizing. Results update
+        as you type: design pressure for every roof zone at strength level and at ASD (0.6 W), a zone drawing in proportion to your
+        plan, and a table across common effective wind areas.</p>
+      <p class="note">Pressures follow Eq. 30.3-1, p = q<sub>h</sub> K<sub>d</sub> [(GC<sub>p</sub>) − (GC<sub>pi</sub>)], with
+        K<sub>d</sub> = 0.85 and the 16 psf minimum of Sec. 30.2.2. K<sub>h</sub> uses z = 15 ft for any height below 15 ft, in
+        every exposure (Table 26.10-1).</p>
+    </div>
+
+    <div class="input-form">
+      <h3>Inputs</h3>
+      <div class="input-group">
+        <div><label for="windSpeed">Ultimate Wind Speed, V (mph)
+          <span class="help-icon" title="Basic wind speed for the Risk Category, ASCE 7-22 Figs. 26.5-1 and 26.5-2, or the local code.">?</span></label>
+          <input type="number" id="windSpeed" value="160" min="1" /></div>
+        <div><label for="exposure">Exposure Category</label>
+          <select id="exposure"><option>B</option><option selected>C</option><option>D</option></select></div>
+        <div><label for="buildingType">Enclosure Classification
+          <span class="help-icon" title="Enclosed or partially open: GCpi = ±0.18. Partially enclosed: ±0.55 (Table 26.13-1).">?</span></label>
+          <select id="buildingType"><option value="enclosed">Enclosed (GCpi ±0.18)</option><option value="partiallyOpen">Partially open (GCpi ±0.18)</option><option value="partiallyEnclosed">Partially enclosed (GCpi ±0.55)</option></select></div>
+        <div><label for="roofType">Roof Shape</label>
+          <select id="roofType"><option value="gable">Gable (or flat)</option><option value="hip">Hip</option></select></div>
+        <div><label for="roofSlope">Roof Slope
+          <span class="help-icon" title="Enter degrees, or the rise in 12 (for example 4 for a 4:12 roof).">?</span></label>
+          <div class="seg"><input type="number" id="roofSlope" value="3" min="0" step="0.1" /><select id="slopeUnit"><option value="deg">degrees</option><option value="pitch">: 12</option></select></div></div>
+        <div><label for="meanRoofHeight">Mean Roof Height, h (ft)
+          <span class="help-icon" title="Average of eave and ridge height. For slopes of 10° or less, use the eave height.">?</span></label>
+          <input type="number" id="meanRoofHeight" value="30" min="1" step="0.1" /></div>
+        <div><label for="leastDim">Least Horizontal Dimension (ft)
+          <span class="help-icon" title="The smaller plan dimension of the building. Sets the zone width a.">?</span></label>
+          <input type="number" id="leastDim" value="50" min="1" step="0.1" /></div>
+        <div><label for="planLength">Other Plan Dimension (ft)
+          <span class="help-icon" title="The longer plan dimension, used only to draw the zones in proportion. The ridge is drawn along it.">?</span></label>
+          <input type="number" id="planLength" value="100" min="1" step="0.1" /></div>
+        <div><label for="effWindArea">Effective Wind Area, A (sq ft)
+          <span class="help-icon" title="Span times effective width; the width need not be less than one third of the span (Sec. 26.2). Fasteners: the area tributary to one fastener.">?</span></label>
+          <input type="number" id="effWindArea" value="10" min="0.1" step="0.1" /></div>
+        <div><label for="kzt">Topographic Factor, K<sub>zt</sub></label>
+          <input type="number" id="kzt" value="1.0" min="1" step="0.01" /></div>
+        <div><label for="ke">Ground Elevation (ft above sea level)
+          <span class="help-icon" title="Sets Ke = e^(-0.0000362 z). Leave 0 for Ke = 1.0, which is always permitted.">?</span></label>
+          <input type="number" id="ke" value="0" min="0" step="1" /></div>
+      </div>
+      <button id="resetBtn" type="button">Reset</button>
+      <div id="error" class="error" style="margin-top:12px"></div>
+    </div>
+
+    <div class="results" id="results">
+      <h2>Calculation Results</h2>
+      <div class="params" id="params"></div>
+      <h3 id="tableTitle">Design Pressures by Roof Zone</h3>
+      <table><thead><tr><th>Zone</th><th>GC<sub>p</sub></th><th>Strength (psf)</th><th>ASD, 0.6 W (psf)</th></tr></thead><tbody id="zoneRows"></tbody></table>
+      <p class="note">Negative acts away from the roof (uplift), positive toward it. Sizing a fastener or a product rated by allowable load? Use the ASD column.</p>
+      <div id="flags"></div>
+      <h3>Roof Zones</h3>
+      <div class="zone-diagram"><div id="diagram"></div><div class="zone-legend" id="legend"></div>
+        <p class="note" id="diagramNote"></p></div>
+      <h3>By Effective Wind Area (ASD, psf)</h3>
+      <table><thead id="ewaHead"></thead><tbody id="ewaRows"></tbody></table>
+    </div>
+
+    <div class="disclaimer">
+      <p><strong>Disclaimer:</strong> This calculator implements the ASCE 7-22 Chapter 30 components-and-cladding equations for roofs of
+        low-rise buildings. It is a calculation aid, not a substitute for project-specific engineering by a licensed design professional,
+        who must confirm every input, the governing code edition and local amendments.</p>
+      <p>MIT License · <a href="https://github.com/oasiseng/roof-wind-calculator">Source on GitHub</a> · <a href="https://oasisengineering.com">Oasis Engineering</a></p>
+    </div>
+  </div>
+
+  <script>
+%ENGINE%
+  </script>
+  <script>
+%DIAGRAM%
+  </script>
+  <script>
+    'use strict';
+    (function () {
+      const $ = id => document.getElementById(id);
+      const DEFAULTS = { windSpeed: 160, exposure: 'C', buildingType: 'enclosed', roofType: 'gable', roofSlope: 3, slopeUnit: 'deg', meanRoofHeight: 30, leastDim: 50, planLength: 100, effWindArea: 10, kzt: '1.0', ke: 0 };
+      const sgn = (v, d) => (v > 0 ? '+' : '') + v.toFixed(d == null ? 1 : d);
+      const ZNAME = { z1p: "Zone 1'", z1: 'Zone 1', z2: 'Zone 2', z3: 'Zone 3' };
+      const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+      function read() {
+        const slope = +$('roofSlope').value;
+        const theta = $('slopeUnit').value === 'pitch' ? CCWind.slopeToDeg(slope) : slope;
+        const least = +$('leastDim').value, other = +$('planLength').value;
+        return { V: +$('windSpeed').value, exposure: $('exposure').value, enclosure: $('buildingType').value, roofType: $('roofType').value, theta,
+          h: +$('meanRoofHeight').value, least: Math.min(least, other || least), length: Math.max(least, other || least), A: +$('effWindArea').value,
+          Kzt: +$('kzt').value, elevation: +$('ke').value };
+      }
+
+      function calculate() {
+        const err = $('error'), box = $('results'); err.textContent = '';
+        let inp, r;
+        try {
+          inp = read();
+          if (![inp.V, inp.theta, inp.h, inp.least, inp.A, inp.Kzt].every(Number.isFinite)) throw new Error('Fill in every input with a number.');
+          if (inp.h > 60) throw new Error('Mean roof height over 60 ft is outside this tool: use ASCE 7-22 Chapter 30 Part 2 (Sec. 30.4, Fig. 30.4-1).');
+          if (inp.theta > 45) throw new Error('Roof slope over 45 degrees is outside Figs. 30.3-2A to 30.3-2G.');
+          r = CCWind.roof(inp);
+        } catch (e) { err.textContent = e.message; box.style.display = 'none'; return; }
+        const s = r.site, names = CCWind.zoneNames(r.geometry.layout);
+        $('params').innerHTML = [
+          ['Figure', r.fig], ['Slope', inp.theta.toFixed(1) + '\u00b0 (' + r.range + ')'], ['K<sub>h</sub>', s.Kh.toFixed(3) + (inp.h < 15 ? ' (z = 15 ft)' : '')],
+          ['K<sub>zt</sub>', s.Kzt.toFixed(2)], ['K<sub>e</sub>', s.Ke.toFixed(3)], ['K<sub>d</sub>', s.Kd.toFixed(2)],
+          ['q<sub>h</sub>', s.qh.toFixed(2) + ' psf'], ['GC<sub>pi</sub>', '\u00b1' + s.GCpi.toFixed(2)],
+          r.geometry.layout === 'lowslope' ? ['Zone widths', '0.6h = ' + r.geometry.edge.toFixed(1) + ' ft, 0.2h = ' + r.geometry.cornerDepth.toFixed(1) + ' ft' ] : ['Zone width a', r.a.toFixed(2) + ' ft'],
+        ].map(([k, v]) => '<p><strong>' + k + ':</strong> <span class="result-value">' + v + '</span></p>').join('');
+        $('tableTitle').innerHTML = 'Design Pressures by Roof Zone, A = ' + inp.A + ' sq ft (Eq. 30.3-1)';
+        const rowOf = (label, gcp, p) => '<tr><td class="zone-cell">' + label + '</td><td class="num">' + sgn(gcp, 2) + '</td><td class="num">' + sgn(p.strength) +
+          (p.minGoverns ? ' <span class="min">min.</span>' : '') + '</td><td class="num">' + sgn(p.asd) + '</td></tr>';
+        let rows = rowOf('All zones, downward', r.gcp.pos, r.pos);
+        for (const k of Object.keys(r.zones)) rows += rowOf(ZNAME[k] + ' \u2014 ' + names[k] + ', uplift', r.gcp[k], r.zones[k]);
+        $('zoneRows').innerHTML = rows;
+        const flags = [];
+        if (r.pos.minGoverns || Object.values(r.zones).some(z => z.minGoverns)) flags.push('<b>min.</b> The 16 psf minimum of Sec. 30.2.2 governs (9.6 psf at ASD).');
+        if (r.unconfirmed.length) flags.push('The ' + r.unconfirmed.map(k => ZNAME[k]).join(' and ') + ' curve for this figure was read from the printed figure and has not been checked against a second source. Confirm against ' + r.fig + ' before relying on it for areas above 10 sq ft.');
+        if (r.geometry.layout === 'lowslope' && !r.geometry.hasInterior) flags.push("The building is narrower than 2.4h, so there is no Zone 1' on this roof. The Zone 1' row is shown for reference only.");
+        if (inp.theta <= 7 && inp.theta > 3) flags.push('A monoslope roof steeper than 3\u00b0 uses Fig. 30.3-5A, which is not in this tool. Gable and hip roofs at this slope use Fig. 30.3-2A as shown.');
+        $('flags').innerHTML = flags.map(f => '<div class="flag">' + f + '</div>').join('');
+        $('diagram').innerHTML = CCWindDiagram.roofPlan(r, { px: 520 });
+        $('legend').innerHTML = CCWindDiagram.legend(r).map(l => '<div class="item"><div class="swatch" style="background:' + l.color + '"></div><span><b>Zone ' + l.zone + '</b> ' + l.text + '</span></div>').join('');
+        $('diagramNote').textContent = 'Schematic of ' + r.fig + ', drawn in proportion to the plan dimensions entered. Overhangs are not shown or covered.';
+        const AREAS = [10, 20, 50, 100, 200, 500];
+        $('ewaHead').innerHTML = '<tr><th>Zone</th>' + AREAS.map(a => '<th>' + a + ' SF</th>').join('') + '</tr>';
+        const all = AREAS.map(A => CCWind.roof(Object.assign({}, inp, { A })));
+        $('ewaRows').innerHTML = '<tr><td class="zone-cell">Downward</td>' + all.map(x => '<td class="num">' + sgn(x.pos.asd) + '</td>').join('') + '</tr>' +
+          Object.keys(r.zones).map(k => '<tr><td class="zone-cell">' + ZNAME[k] + ', ' + names[k].split(',')[0] + '</td>' + all.map(x => '<td class="num">' + sgn(x.zones[k].asd) + '</td>').join('') + '</tr>').join('');
+        box.style.display = 'block';
+      }
+
+      document.querySelectorAll('.input-form input, .input-form select').forEach(el => { el.addEventListener('input', calculate); el.addEventListener('change', calculate); });
+      $('resetBtn').addEventListener('click', () => { for (const k in DEFAULTS) $(k).value = DEFAULTS[k]; calculate(); });
+      calculate();
+    })();
+  </script>
+</body>
+</html>

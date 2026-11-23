@@ -93,7 +93,7 @@
   function wallElevation(wr, o) {
     o = o || {};
     const L = o.length || wr.length || 40, h = wr.site.h, px = o.px || 460, mL = 34, mR = 12, mT = 26, mB = 8;
-    const shownL = Math.min(L, 6 * h), s = (px - mL - mR) / shownL, w = shownL * s, d = Math.max(Math.min(h * s, 0.45 * w), 34);
+    const shownL = Math.min(L, 6 * h), s = (px - mL - mR) / shownL, w = shownL * s, d = Math.max(Math.min(h * s, 0.2 * w), 34);
     const a = Math.min(wr.a * s, w / 2), x0 = mL, y0 = mT, H = d + mT + mB;
     let g = rect(x0, y0, w, d, COLOR.z4) + rect(x0, y0, a, d, COLOR.z5) + rect(x0 + w - a, y0, a, d, COLOR.z5) + rect(x0, y0, w, d, null, 'ol');
     g += znum('4', x0 + w / 2, y0 + d / 2, w - 2 * a, d) + znum('5', x0 + a / 2, y0 + d / 2, a, d) + znum('5', x0 + w - a / 2, y0 + d / 2, a, d);

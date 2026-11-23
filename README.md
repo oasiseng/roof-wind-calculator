@@ -39,18 +39,11 @@ strength level Zone 1′ = −59.0, Zone 1 = −102.7, Zone 2 = −135.5, Zone 3
 
 ## How sure are the numbers
 
-`test/cc-wind.test.js` pins 97 values: K<sub>z</sub> against Table 26.10-1, the wall and roof baselines, and GC<sub>p</sub> at
-several areas for each figure. The GC<sub>p</sub> curves were checked against the equations in the ASCE 7-22 commentary
-(Tables C30.3-1 to C30.3-8) where those could be found. Four curves could not be confirmed from a second source and are marked
-`'F'` in `src/cc-wind.js`; the page shows a notice whenever one of them is used:
+`test/cc-wind.test.js` pins 163 values: K<sub>z</sub> against Table 26.10-1, the wall and roof baselines, and GC<sub>p</sub> for every figure.
 
-- Fig. 30.3-2D (gable 27° to 45°), Zone 3, beyond 10 sq ft
-- Fig. 30.3-2E (hip 7° to 20°), Zones 2 and 3
-- Fig. 30.3-2F (hip 20° to 27°), Zone 1
+The GC<sub>p</sub> lines each have two sources: the equations in the ASCE 7-22 commentary (Tables C30.3-1 to C30.3-8), and a back-calculation from the 2024 IRC Table R301.2.1(1), which is computed from the same figures. The test file reproduces 55 printed IRC values to within 0.1 psf across every gable and hip figure. No line is left unconfirmed.
 
-Their 10 sq ft values agree with published summaries; the slope of the line beyond 10 sq ft is the open part. The zone layouts
-for the gable and hip figures are drawn from our reading of the figures. If you have the standard open and find a difference,
-please open an issue.
+The zone layouts for the gable and hip figures (which strip is Zone 2, which is Zone 3, and the a and 2a widths) are drawn from a reading of the figures. Published summaries agree on the structure (one hip layout with Zone 3 along the eaves; two gable layouts split at 27°, with the ridge in Zone 1 on the steeper one), but the widths are only in the figures themselves. Glance at Figs. 30.3-2B to 2G once to confirm.
 
 ## Files
 

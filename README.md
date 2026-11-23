@@ -1,109 +1,83 @@
 # ASCE 7-22 Roof Components & Cladding Wind Pressure Calculator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/asce-roof-wind-calculator.svg?style=social)](https://github.com/yourusername/asce-roof-wind-calculator/stargazers)
 
-A sleek, intuitive web-based tool to estimate wind pressures and loads on roof components and cladding for low-rise buildings based on ASCE 7-22. This calculator dynamically interpolates GCp from ASCE figures, supporting various roof types (gable, hip, monoslope), slopes, and enclosure classifications for precise zone-specific results.
+A single-page calculator for components and cladding (C&C) wind pressures on the roofs of low-rise buildings, per ASCE 7-22
+Chapter 30, Part 1. It covers gable and hip roofs from flat to 45°, draws the roof zones in proportion to your plan, and reports
+every zone at strength level and at ASD.
 
-**Note:** This is an estimation tool for educational and preliminary purposes. Always consult a licensed engineer for final designs, as it uses interpolated values and assumes standard low-rise conditions (h ≤ 60 ft).
+Live version: <https://oasisengineering.com/free-wind-load-calculator-for-roof-comp-clad/>
 
-## Features
+**This is a calculation aid.** A licensed engineer confirms every input and result before it is used for design.
 
-- **Input Parameters:**
-  - Ultimate wind speed, V (mph)
-  - Least horizontal dimension (ft)
-  - Mean roof height, h (ft)
-  - Roof slope (°)
-  - Roof type (e.g., Flat Gable, Hip 20-27°)
-  - Effective wind area, A (ft²)
-  - Topographic factor, Kzt (default 1.0)
-  - Exposure category (B, C, D)
-  - Enclosure classification (Enclosed or Partially Enclosed)
+## What it does
 
-- **Outputs:**
-  - Velocity pressure qh (psf)
-  - Internal pressure GCpi
-  - End zone width 'a' (ft)
-  - Exposure coefficient Kz
-  - Net positive (inward) and negative (outward) pressures (psf) for Zones 1 (Interior), 2 (Edges), 3 (Corners/Ridges)
-  - Corresponding wind loads (lbf)
-  - Conceptual zone diagram
-  - Warnings for heights >60 ft
+| | |
+|---|---|
+| Roofs | Gable and hip, 0° to 45°, mean roof height h ≤ 60 ft |
+| Figures | 30.3-2A (θ ≤ 7°), 30.3-2B / 2C / 2D (gable), 30.3-2E / 2F / 2G (hip, with the Note 6 interpolation between 27° and 45°) |
+| Inputs | V, exposure, enclosure, roof shape, slope (degrees or rise in 12), mean roof height, plan dimensions, effective wind area, K<sub>zt</sub>, ground elevation |
+| Outputs | K<sub>h</sub>, q<sub>h</sub>, zone widths, GC<sub>p</sub> and design pressure per zone (strength and ASD), downward pressure, a live zone drawing, and a table across 10 to 500 sq ft |
 
-- **Advanced Calculations:** Dynamic GCp interpolation based on area and roof type/slope from ASCE figures; tooltips for guidance.
-- **Responsive Design:** Clean, modern UI inspired by premium apps—works seamlessly on desktop and mobile.
-- **No Dependencies:** Pure HTML, CSS, and JavaScript—lightweight and browser-ready.
+Not covered: roof overhangs (Sec. 30.7), parapets, monoslope roofs steeper than 3°, stepped / sawtooth / multispan roofs, open
+buildings, buildings over 60 ft, rooftop equipment, tornado loads (Chapter 32).
 
-## Demo
+## Method
 
-You can try the calculator live [here]https://oasisengineering.com/free-wind-load-calculator-for-roof-comp-clad/
-
-## Installation
-
-No installation required! This is a static web page.
-
-1. Clone the repository:
-2. Open `index.html` in your web browser.
-
-Alternatively, download the ZIP and open the HTML file directly.
-
-## Usage
-
-1. Enter wind speed, dimensions, slope, select roof type, exposure, enclosure, and other factors.
-2. Click **Calculate** to generate results.
-3. Review pressures and loads per zone, with a conceptual diagram for visualization.
-4. If height >60 ft, a warning prompts for advanced ASCE methods.
-5. Use **Reset** to clear and start over.
+- K<sub>h</sub> = 2.41 (z / z<sub>g</sub>)<sup>2/α</sup>, Table 26.10-1, with z not less than 15 ft **in every exposure**.
+- K<sub>e</sub> = e<sup>−0.0000362 z<sub>e</sub></sup>, Table 26.9-1.
+- q<sub>h</sub> = 0.00256 K<sub>h</sub> K<sub>zt</sub> K<sub>e</sub> V², Eq. 26.10-1.
+- p = q<sub>h</sub> K<sub>d</sub> [(GC<sub>p</sub>) − (GC<sub>pi</sub>)], Eq. 30.3-1, K<sub>d</sub> = 0.85, GC<sub>pi</sub> = ±0.18 or ±0.55.
+- Not less than 16 psf either way at strength level (Sec. 30.2.2). ASD = 0.6 × strength.
+- Zone width a = lesser of 10% of the least horizontal dimension and 0.4 h, not less than 4% of that dimension or 3 ft.
+  The low-slope figure (30.3-2A) is laid out from h instead: edge strip 0.6 h, corner L 0.6 h by 0.2 h, Zone 1′ beyond 1.2 h.
 
 ### Example
 
-- Ultimate Wind Speed: 140 mph
-- Least Horizontal Dimension: 40 ft
-- Mean Roof Height: 20 ft
-- Roof Slope: 26.6°
-- Roof Type: Gable (20°-27°)
-- Effective Wind Area: 10 ft²
-- Topographic Factor: 1.0
-- Exposure: C
-- Enclosure: Enclosed
+V = 160 mph, Exposure C, enclosed, h = 30 ft, slope 3°, A = 10 sq ft: K<sub>h</sub> = 0.981, q<sub>h</sub> = 64.26 psf, and at
+strength level Zone 1′ = −59.0, Zone 1 = −102.7, Zone 2 = −135.5, Zone 3 = −184.6 psf.
 
-**Result:** 
-- qh: ~41.2 psf
-- GCpi: ±0.18
-- a: 8 ft
-- Kz: ~0.85
-- Zone 1: Positive 24.7 psf, Negative -41.2 psf
-- Zone 2: Positive 28.8 psf, Negative -90.6 psf
-- Zone 3: Positive 28.8 psf, Negative -131.8 psf
-- Loads scaled by area.
+## How sure are the numbers
 
-## Technical Details
+`test/cc-wind.test.js` pins 97 values: K<sub>z</sub> against Table 26.10-1, the wall and roof baselines, and GC<sub>p</sub> at
+several areas for each figure. The GC<sub>p</sub> curves were checked against the equations in the ASCE 7-22 commentary
+(Tables C30.3-1 to C30.3-8) where those could be found. Four curves could not be confirmed from a second source and are marked
+`'F'` in `src/cc-wind.js`; the page shows a notice whenever one of them is used:
 
-- **Calculations:** Based on ASCE 7-22 Chapter 30 (C&C for roofs). Exact Kz formula, interpolated GCp neg from figures (log-scale for A 10-500 ft²), GCpi per enclosure. qh at h with Kd=1.0, Ke=1.0. Positive GCp often constant; negative varies by zone/type/slope.
-- **Prescriptive Check:** 'a' per ASCE definition; supports multiple roof configurations via parameterized figures.
-- **Limitations:** Low-rise only; no directionality (Kd=1.0); no overhangs/parapets; simplified for common cases. For complex roofs or high-rise, use full ASCE/software.
+- Fig. 30.3-2D (gable 27° to 45°), Zone 3, beyond 10 sq ft
+- Fig. 30.3-2E (hip 7° to 20°), Zones 2 and 3
+- Fig. 30.3-2F (hip 20° to 27°), Zone 1
 
-## Contributing
+Their 10 sq ft values agree with published summaries; the slope of the line beyond 10 sq ft is the open part. The zone layouts
+for the gable and hip figures are drawn from our reading of the figures. If you have the standard open and find a difference,
+please open an issue.
 
-Contributions are welcome! Please fork the repo and submit a pull request.
+## Files
 
-1. Fork the project.
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a pull request.
+| File | |
+|---|---|
+| `index.html` | The calculator, one self-contained file. Open it in a browser, or embed it. Built, do not edit by hand. |
+| `src/cc-wind.js` | The calculation engine. No dependencies; works in a browser (`CCWind`) and in Node. |
+| `src/cc-wind-diagram.js` | Zone drawings as SVG (`CCWindDiagram`). |
+| `src/page.html` | The page around them. |
+| `build.py` | `python build.py` writes `index.html`; `python build.py --check` fails if it is stale. |
+| `test/cc-wind.test.js` | `node test/cc-wind.test.js` |
+
+## Changelog
+
+**v2.0**
+- Fixed: K<sub>h</sub> in Exposure B below 30 ft. v1 held z at 30 ft (K<sub>h</sub> = 0.70); that floor belongs to the
+  Chapter 28 envelope procedure, not to components and cladding. Chapter 30 uses z = 15 ft (K<sub>h</sub> = 0.57), so v1
+  overstated Exposure B pressures by about 20% for roofs under 30 ft.
+- Added: gable and hip roofs above 7°, up to 45°.
+- Added: downward (positive) pressure, the 16 psf minimum, ASD values, K<sub>d</sub> shown, a table by effective wind area.
+- Fixed: the low-slope zone description and drawing. Fig. 30.3-2A zones are set by h (0.6 h, 0.2 h, 1.2 h), not by a.
+- Fixed: monoslope roofs. Fig. 30.3-2A applies to them only up to 3°.
+- Fixed: the over-60 ft message now points to Sec. 30.4 and Fig. 30.4-1.
+- The drawing is now live and in proportion to the plan.
+
+**v1.0** Low-slope roofs only (Fig. 30.3-2A).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Disclaimer
-
-This tool provides estimates only and is not a substitute for professional engineering advice. Calculations are based on simplified interpolations from ASCE 7-22 figures. Verify all designs with a licensed structural engineer to ensure compliance with local codes and site-specific conditions. Oasis Engineering assumes no liability for any use of this tool or for any errors, omissions, or damages arising from its use.
-
-## Acknowledgments
-
-- Learn More at WindCalculations.com: WindCalculations.com provides site-specific wind load calculations, certifications, and engineering letters essential for permitting and installing building components like windows, doors, rooftop solar equipment, and roofing materials. It ensures full compliance with the latest Building Codes and ASCE 7-22 standards.
-- Based on ASCE 7-22 Minimum Design Loads for Buildings.
-
-If you find this useful, star the repo! ⭐
+MIT. See [LICENSE](LICENSE).
